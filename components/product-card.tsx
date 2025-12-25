@@ -17,6 +17,7 @@ interface Product {
     ai_generated_copy: string | null
     lat?: number
     lng?: number
+    is_sold_out?: boolean
 }
 
 export function ProductCard({ product }: { product: Product }) {
