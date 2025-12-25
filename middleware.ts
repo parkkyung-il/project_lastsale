@@ -3,9 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
     // 1. Check for missing environment variables to prevent 500 crashes
+    // If keys are missing, we just pass through.
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.error('Middleware Error: Supabase keys are missing in Environment Variables!')
-        // Pass through without auth if keys are missing (allows debugging page to load)
+        // console.error('Middleware: Env vars missing, skipping auth check')
         return NextResponse.next({
             request,
         })
@@ -34,27 +34,23 @@ export async function middleware(request: NextRequest) {
                                 supabaseResponse.cookies.set(name, value, options)
                             )
                         } catch (e) {
-                            // Ignore cookie errors in middleware
+                            // Cookie error
                         }
                     },
                 },
             }
         )
 
-        // IMPORTANT: Avoid writing any logic between createServerClient and
-        // supabase.auth.getUser().
+        // Avoid writing logic between createServerClient and getUser
         const {
             data: { user },
         } = await supabase.auth.getUser()
 
-        // Auth redirection logic here if needed
+        // You can check user and redirect here if needed
 
     } catch (e) {
-        console.error('Middleware Supabase Error:', e)
-        // On error, just allow request to proceed so app doesn't crash
-        return NextResponse.next({
-            request,
-        })
+        // console.error('Middleware Supabase Error:', e)
+        // Ensure we don't crash
     }
 
     return supabaseResponse
